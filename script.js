@@ -2,18 +2,34 @@ let num1 = 0;
 let num2 = 1;
 let operator = "";
 let operatorSelected = false;
+let repeatedEquals = false;
 
 const display = document.getElementById("display");
-
 const numbers = document.querySelectorAll(".number");
+const decimal = document.getElementById("decimal");
+
+
 for(let i = 0; i < numbers.length; i++)
 {
     numbers[i].addEventListener('click', function(e)
     {
+        repeatedEquals = false;
         if(operatorSelected)
         {
             clear();
             operatorSelected = false;
+        }
+        if(this.textContent === ".")
+        {
+            decimal.disabled = true;
+        }
+        if(display.textContent.length > 14)
+        {
+            numsDisable();
+        }
+        else
+        {
+            numsEnable();
         }
         console.log(this.textContent);
         display.textContent += this.textContent;
@@ -25,51 +41,80 @@ for(let i = 0; i < operators.length; i++)
 {
     operators[i].addEventListener('click', function(e)
     {
-        num1 = display.textContent;
-        //clear();
+        decimal.disabled = false;
+        numsEnable();
+
+
+        if(display.textContent.length > 0)
+        {
+            num1 = display.textContent;
+        }
         display.textContent = this.textContent;
         operator = display.textContent;
         operatorSelected = true;
     });
-    // if(operatorSelected)
-    // {
-    //     break;
-    // }
 }
 
 const equals = document.getElementById("equals");
 equals.addEventListener('click', function(e)
 {
-    num2 = display.textContent;
-    operate(num1, num2, operator);
-});
+    decimal.disabled = false;
+    numsEnable();
 
+    if(repeatedEquals)
+    {
+        num1 = display.textContent;
+        operate(num1, num2, operator);
+    }
+    else 
+    {
+        num2 = display.textContent;
+        repeatedEquals = true;
+        operate(num1, num2, operator);
+        
+    }
+    console.log(num1 + operator + num2);
+
+});
 
 const clearBtn = document.getElementById("clear");
 clearBtn.addEventListener('click', function(e)
 {
     clear();
+    num1 = 0;
 });
 
-const decimal = document.getElementById("decimal");
-decimal.addEventListener('click', function(e)
+const deleteBtn = document.getElementById("delete");
+deleteBtn.addEventListener('click', function(e)
 {
-    if(!operator)
-    {
-        display.textContent += this.textContent;
-    }
-    else
-    {
-        clear();
-        display.textContent += this.textContent;
-        operatorSelected = false;
-    }
+    del();
+    numsEnable();
 });
 
+function numsDisable()
+{
+    numbers.forEach(num => {
+        num.disabled = true;
+    });
+}
+
+function numsEnable()
+{
+    numbers.forEach(num => {
+        num.disabled = false;
+    });
+}
+
+
+function del()
+{
+    display.textContent = display.textContent.slice(0, display.textContent.length-1);
+}
 
 function clear()
 {
     display.textContent = "";
+    repeatedEquals = false;
 }
 
 function operate(num1, num2, operator)
@@ -99,6 +144,7 @@ function operate(num1, num2, operator)
     }
     console.log(answer);
     display.textContent = answer;
+    return answer;
 }
 
 function add(num1, num2) 
